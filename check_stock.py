@@ -5,25 +5,34 @@ TOKEN = os.environ["TELEGRAM_TOKEN"]
 CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
 def check_stock():
-    url = f"https://www.falabella.com/s/browse/v1/listing/cl?skuId={SKU_ID}"
-    headers = {"User-Agent": "Mozilla/5.0"}
-    r = requests.get(url, headers=headers).json()
+    # Intentamos con dos endpoints distintos
+    urls = [
+        f"https://www.falabella.com/s/browse/v1/listing/cl?skuId={SKU_ID}",
+        f"https://www.falabella.com/s/browse/v1/listing/cl?productId={SKU_ID}",
+    ]
     
-    results = r.get("data", {}).get("results", [])
-    if not results:
-        print("No se encontró el producto")
-        return
-    
-    product = results[0]
-    name = product.get("displayName", "Producto")
-    prices = product.get("prices", [])
-    available = product.get("quantityAvailable", 0)
+    for url in urls:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36",
+            "Accept": "application/json",
+            "Referer": "https://www.falabella.com/"
+        }
+        r = requests.get(url, headers=headers)
+        print(f"Status: {r.status_code} - URL: {url}")
+        print(f"Respuesta: {r.text[:500]}")  # imprime los primeros 500 caracteres
+        
+        data = r.json()
+        results = data.get("data", {}).get("results", [])
+        if results:
+            product = results[0]
+            name = product.get("displayName", "Producto")
+            available = product.get("quantityAvailable", 0)
+            print(f"Producto: {name} - Stock: {available}")
+            if available > 0:
+                notify(f"✅ {name} está disponible!\nfalabella.com/falabella-cl/product/{SKU_ID}")
+            return
 
-    if available > 0:
-        price = prices[0].get("originalPrice", "?") if prices else "?"
-        notify(f"✅ {name} está disponible!\n💰 Precio: ${price:,}\nfalabella.com")
-    else:
-        print(f"Sin stock: {name}")
+    print("No se encontró el producto en ningún endpoint")
 
 def notify(msg):
     requests.get(
