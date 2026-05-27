@@ -14,21 +14,13 @@ def check_stock():
         "Referer": "https://www.falabella.com/"
     }
     r = requests.get(URL, headers=headers)
-    print("Status: " + str(r.status_code))
-    print("Primeros 1000 chars: " + r.text[:1000])
-
     text = r.text.lower()
-    sin_stock = "sin stock" in text or "agotado" in text or "no disponible" in text
-    con_stock = "agregar al carro" in text or "comprar" in text
 
-    print("Sin stock: " + str(sin_stock) + " - Con stock: " + str(con_stock))
-
-    if con_stock and not sin_stock:
-        notify("Pokemon Ascended Heroes esta disponible! " + URL)
-    else:
-        print("Sin stock por ahora")
-
-def notify(msg):
-    requests.get("https://api.telegram.org/bot" + TOKEN + "/sendMessage", params={"chat_id": CHAT_ID, "text": msg})
+    # Buscar fragmentos clave alrededor de palabras de stock
+    keywords = ["sin stock", "agotado", "agregar al carro", "add-to-cart", "addtocart", "out-of-stock", "outofstock", "availability"]
+    for kw in keywords:
+        idx = text.find(kw)
+        if idx != -1:
+            print("ENCONTRADO '" + kw + "': ...'" + r.text[max(0,idx-50):idx+100] + "'...")
 
 check_stock()
