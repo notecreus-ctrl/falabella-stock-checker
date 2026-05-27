@@ -14,13 +14,18 @@ def check_stock():
         "Referer": "https://www.falabella.com/"
     }
     r = requests.get(URL, headers=headers)
-    text = r.text.lower()
+    text = r.text
 
-    # Buscar fragmentos clave alrededor de palabras de stock
-    keywords = ["sin stock", "agotado", "agregar al carro", "add-to-cart", "addtocart", "out-of-stock", "outofstock", "availability"]
-    for kw in keywords:
-        idx = text.find(kw)
-        if idx != -1:
-            print("ENCONTRADO '" + kw + "': ...'" + r.text[max(0,idx-50):idx+100] + "'...")
+    if "schema.org/InStock" in text:
+        print("DISPONIBLE - enviando notificacion")
+        notify("Pokemon Ascended Heroes esta disponible en Falabella! " + URL)
+    elif "schema.org/OutOfStock" in text:
+        print("Sin stock confirmado")
+    else:
+        print("No se pudo determinar el stock")
+        print(r.text[:500])
+
+def notify(msg):
+    requests.get("https://api.telegram.org/bot" + TOKEN + "/sendMessage", params={"chat_id": CHAT_ID, "text": msg})
 
 check_stock()
