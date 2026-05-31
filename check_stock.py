@@ -16,7 +16,7 @@ def check_stock():
     r = requests.get(URL, headers=headers)
     text = r.text
 
-    if "schema.org/OutOfStock" in text or "schema.org/InStock" in text:
+    if "schema.org/InStock" in text:
         print("DISPONIBLE - enviando notificacion")
         notify("Pokemon Ascended Heroes esta disponible en Falabella! " + URL)
     elif "schema.org/OutOfStock" in text:
