@@ -18,17 +18,19 @@ def check_falabella():
         print("Falabella sin stock")
     else:
         print("Falabella: no determinado")
+        if "agregar al carro" in r.text.lower():
+            notify("Falabella: Ascended Heroes disponible! " + FALABELLA_URL)
 
 def check_lider():
     headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
     r = requests.get(LIDER_URL, headers=headers)
-    print("Lider status: " + str(r.status_code))
-    text = r.text.lower()
-    words = ["sin stock", "agotado", "agregar al carro", "add-to-cart", "instock", "outofstock", "availability"]
-    for kw in words:
-        idx = text.find(kw)
-        if idx != -1:
-            print("'" + kw + "': " + r.text[max(0,idx-30):idx+80])
+    if "schema.org/InStock" in r.text or "schema.org/OutOfStock" in r.text:
+        print("LIDER DISPONIBLE")
+        notify("Lider: Ascended Heroes disponible! " + LIDER_URL)
+    elif "schema.org/OutOfStock" in r.text:
+        print("Lider sin stock")
+    else:
+        print("Lider: no determinado")
 
 def notify(msg):
     requests.get("https://api.telegram.org/bot" + TOKEN + "/sendMessage", params={"chat_id": CHAT_ID, "text": msg})
