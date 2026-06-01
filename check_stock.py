@@ -24,7 +24,7 @@ def check_falabella():
 def check_lider():
     headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
     r = requests.get(LIDER_URL, headers=headers)
-    if "schema.org/InStock" in r.text or "schema.org/OutOfStock" in r.text:
+    if "schema.org/InStock" in r.text:
         print("LIDER DISPONIBLE")
         notify("Lider: Ascended Heroes disponible! " + LIDER_URL)
     elif "schema.org/OutOfStock" in r.text:
