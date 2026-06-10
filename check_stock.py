@@ -16,12 +16,10 @@ def check_falabella():
     if "schema.org/InStock" in r.text:
         print("FALABELLA DISPONIBLE")
         notify("Falabella: Ascended Heroes disponible! " + FALABELLA_URL)
-    elif "schema.org/OutOfStock" in r.text:
+    elif "justo se agoto" in r.text.lower() or "schema.org/OutOfStock" in r.text:
         print("Falabella sin stock")
     else:
         print("Falabella: no determinado")
-        if "agregar al carro" in r.text.lower():
-            notify("Falabella: Ascended Heroes disponible! " + FALABELLA_URL)
 
 def check_lider(nombre, url):
     headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
