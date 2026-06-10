@@ -29,3 +29,16 @@ def check_lider(nombre, url):
     headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
     r = requests.get(url, headers=headers)
     if "schema.org/InStock" in r.text:
+        print(nombre + " DISPONIBLE")
+        notify("Lider: " + nombre + " disponible! " + url)
+    elif "schema.org/OutOfStock" in r.text:
+        print(nombre + " sin stock")
+    else:
+        print(nombre + " no determinado")
+
+def notify(msg):
+    requests.get("https://api.telegram.org/bot" + TOKEN + "/sendMessage", params={"chat_id": CHAT_ID, "text": msg})
+
+check_falabella()
+check_lider("ETB Ingles", LIDER_URL1)
+check_lider("Sobres", LIDER_URL2)
