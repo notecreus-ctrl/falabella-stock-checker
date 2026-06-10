@@ -18,7 +18,7 @@ def check_falabella():
     }
     r = requests.get(FALABELLA_URL, headers=headers)
     tiene_carro = "Agregar al Carro" in r.text
-    esta_agotado = False
+    esta_agotado = "se agot" in r.text.lower() or "schema.org/OutOfStock" in r.text
 
     if tiene_carro and not esta_agotado:
         print("FALABELLA DISPONIBLE")
