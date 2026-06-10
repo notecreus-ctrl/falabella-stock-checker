@@ -16,7 +16,7 @@ def check_falabella():
     if "schema.org/InStock" in r.text:
         print("FALABELLA DISPONIBLE")
         notify("Falabella: Ascended Heroes disponible! " + FALABELLA_URL)
-    elif "justo se agoto" in r.text.lower() or "schema.org/OutOfStock" in r.text:
+    elif "se agot" in r.text.lower() or "schema.org/OutOfStock" in r.text:
         print("Falabella sin stock")
     else:
         print("Falabella: no determinado")
