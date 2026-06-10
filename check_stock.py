@@ -6,8 +6,6 @@ TOKEN = os.environ["TELEGRAM_TOKEN"]
 CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
 FALABELLA_URL = "https://www.falabella.com/falabella-cl/product/" + SKU_ID + "/ascended-heroes-booster-bund-pokemon/" + SKU_ID
-LIDER_URL1 = "https://www.lider.cl/ip/juegos-de-mesa/caja-coleccion-caja-de-entrenador-elite-ascended-heroes-en-ingles/00019621413247"
-LIDER_URL2 = "https://www.lider.cl/ip/juegos-de-mesa/caja-de-sobres-paquete-de-refuerzo-de-ascended-heroes/00019621414150"
 
 def check_falabella():
     headers = {
@@ -17,31 +15,11 @@ def check_falabella():
         "Referer": "https://www.falabella.com/"
     }
     r = requests.get(FALABELLA_URL, headers=headers)
-    tiene_carro = "Agregar al Carro" in r.text
-    esta_agotado = "se agot" in r.text.lower() or "schema.org/OutOfStock" in r.text
-
-    if tiene_carro and not esta_agotado:
-        print("FALABELLA DISPONIBLE")
-        notify("Falabella: Ascended Heroes disponible! " + FALABELLA_URL)
-    elif esta_agotado:
-        print("Falabella sin stock")
+    text = r.text.lower()
+    idx = text.find("se agot")
+    if idx != -1:
+        print("Encontrado 'se agot' en: " + r.text[max(0,idx-100):idx+200])
     else:
-        print("Falabella: no determinado")
-
-def check_lider(nombre, url):
-    headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
-    r = requests.get(url, headers=headers)
-    if "schema.org/InStock" in r.text:
-        print(nombre + " DISPONIBLE")
-        notify("Lider: " + nombre + " disponible! " + url)
-    elif "schema.org/OutOfStock" in r.text:
-        print(nombre + " sin stock")
-    else:
-        print(nombre + " no determinado")
-
-def notify(msg):
-    requests.get("https://api.telegram.org/bot" + TOKEN + "/sendMessage", params={"chat_id": CHAT_ID, "text": msg})
+        print("No se encontro 'se agot'")
 
 check_falabella()
-check_lider("ETB Ingles", LIDER_URL1)
-check_lider("Sobres", LIDER_URL2)
