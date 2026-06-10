@@ -17,10 +17,13 @@ def check_falabella():
         "Referer": "https://www.falabella.com/"
     }
     r = requests.get(FALABELLA_URL, headers=headers)
-    if "Agregar al Carro" in r.text:
+    tiene_carro = "Agregar al Carro" in r.text
+    esta_agotado = "se agot" in r.text.lower() or "schema.org/OutOfStock" in r.text
+
+    if tiene_carro and not esta_agotado:
         print("FALABELLA DISPONIBLE")
         notify("Falabella: Ascended Heroes disponible! " + FALABELLA_URL)
-    elif "se agot" in r.text.lower():
+    elif esta_agotado:
         print("Falabella sin stock")
     else:
         print("Falabella: no determinado")
