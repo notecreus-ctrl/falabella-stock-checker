@@ -17,11 +17,13 @@ def check_falabella():
         "Referer": "https://www.falabella.com/"
     }
     r = requests.get(FALABELLA_URL, headers=headers)
-    words = ["outofstock", "instock", "isOutOfStock", "addToCart", "soldOut", "sin-stock", "quantityAvailable", "stockStatus"]
-    for kw in words:
-        idx = r.text.find(kw)
-        if idx != -1:
-            print("'" + kw + "': " + r.text[max(0,idx-50):idx+150])
+    if '"isOutOfStock":true' in r.text:
+        print("Falabella sin stock")
+    elif '"isOutOfStock":false' in r.text:
+        print("FALABELLA DISPONIBLE")
+        notify("Falabella: Ascended Heroes disponible! " + FALABELLA_URL)
+    else:
+        print("Falabella: no determinado")
 
 def check_lider(nombre, url):
     headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
