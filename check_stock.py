@@ -13,13 +13,13 @@ RIPLEY_URL = "https://simple.ripley.cl/cartas-pokemon-ascended-heroes-elite-box-
 def check_falabella():
     headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.falabella.com/"}
     r = requests.get(FALABELLA_URL, headers=headers)
-    if "schema.org/InStock" in r.text:
-        print("FALABELLA DISPONIBLE")
-        notify("Falabella: Ascended Heroes disponible! " + FALABELLA_URL)
-    elif "se agot" in r.text.lower() or "schema.org/OutOfStock" in r.text:
-        print("Falabella sin stock")
-    else:
-        print("Falabella: no determinado")
+    print("Falabella status: " + str(r.status_code))
+    words = ["instock", "outofstock", "agot", "disponible", "agregar al carro", "schema.org"]
+    text = r.text.lower()
+    for kw in words:
+        idx = text.find(kw)
+        if idx != -1:
+            print("'" + kw + "': " + r.text[max(0,idx-30):idx+100])
 
 def check_lider(nombre, url):
     headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
@@ -57,5 +57,7 @@ def notify(msg):
 
 check_falabella()
 check_lider("ETB Ingles", LIDER_URL1)
+check_lider("Sobres", LIDER_URL2)
+check_ripley()s", LIDER_URL1)
 check_lider("Sobres", LIDER_URL2)
 check_ripley()
