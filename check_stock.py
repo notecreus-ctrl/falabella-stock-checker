@@ -58,6 +58,4 @@ def notify(msg):
 check_falabella()
 check_lider("ETB Ingles", LIDER_URL1)
 check_lider("Sobres", LIDER_URL2)
-check_ripley()s", LIDER_URL1)
-check_lider("Sobres", LIDER_URL2)
 check_ripley()
