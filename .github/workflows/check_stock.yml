@@ -2,8 +2,11 @@ name: Check Falabella Stock
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # cada 30 minutos
-  workflow_dispatch:         # permite ejecutarlo manualmente desde el teléfono
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   check:
@@ -19,3 +22,10 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SKU_ID: ${{ secrets.SKU_ID }}
+      - name: Commit conteo actualizado
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add last_count.txt
+          git diff --staged --quiet || git commit -m "Update count"
+          git push
