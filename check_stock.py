@@ -113,3 +113,22 @@ def test_ripley_disponible():
     print("Ripley DISPONIBLE status: " + str(r.status_code))
 
 test_ripley_disponible()
+
+def test_lider_disponible():
+    headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
+    r = requests.get("https://www.lider.cl/ip/juegos-de-mesa/6-sobres-de-mejora-chaos-rising-booster-bundle-ingles/00019621415416", headers=headers)
+    print("Lider DISPONIBLE status: " + str(r.status_code))
+    if "schema.org/InStock" in r.text:
+        print("Lider DISPONIBLE: tiene schema.org/InStock")
+    elif "schema.org/OutOfStock" in r.text:
+        print("Lider DISPONIBLE: tiene schema.org/OutOfStock")
+    else:
+        print("Lider DISPONIBLE: no tiene ninguno de los dos")
+        words = ["instock", "outofstock", "agregar al carro", "add-to-cart", "disponible", "agotado"]
+        text = r.text.lower()
+        for kw in words:
+            idx = text.find(kw)
+            if idx != -1:
+                print("'" + kw + "': " + r.text[max(0,idx-30):idx+100])
+
+test_lider_disponible()
