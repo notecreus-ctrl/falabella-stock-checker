@@ -101,3 +101,15 @@ check_lider("Prismatic ETB", LIDER_URL3)
 check_ripley("Elite Box EN", RIPLEY_URL1)
 check_ripley("Poster EN", RIPLEY_URL2)
 check_search_count()
+
+def test_ripley_disponible():
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "es-CL,es;q=0.9",
+        "Referer": "https://www.google.com/"
+    }
+    r = requests.get("https://simple.ripley.cl/set-de-cartas-pokemon-chaos-elite-trainer-box-en-2000411573047p", headers=headers)
+    print("Ripley DISPONIBLE status: " + str(r.status_code))
+
+test_ripley_disponible()
