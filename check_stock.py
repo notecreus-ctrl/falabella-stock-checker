@@ -11,8 +11,6 @@ FALABELLA_ETB_URL = "https://www.falabella.com/falabella-cl/product/152020461/po
 LIDER_URL1 = "https://www.lider.cl/ip/juegos-de-mesa/caja-coleccion-caja-de-entrenador-elite-ascended-heroes-en-ingles/00019621413247"
 LIDER_URL2 = "https://www.lider.cl/ip/juegos-de-mesa/caja-de-sobres-paquete-de-refuerzo-de-ascended-heroes/00019621414150"
 LIDER_URL3 = "https://www.lider.cl/ip/juegos-de-mesa/juego-de-cartas-pokemon-prismatic-evolutio-etb-english/00019621410513"
-RIPLEY_URL1 = "https://simple.ripley.cl/cartas-pokemon-ascended-heroes-elite-box-en-2000411014267p"
-RIPLEY_URL2 = "https://simple.ripley.cl/cartas-pokemon-ascended-heroes-poster-en-2000411014281p"
 SEARCH_URL = "https://www.falabella.com/falabella-cl/search?Ntt=Ascended+heroes"
 COUNT_FILE = "last_count.txt"
 
@@ -42,24 +40,6 @@ def check_lider(nombre, url):
         print(nombre + " sin stock")
     else:
         print(nombre + " no determinado")
-
-def check_ripley(nombre, url):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "es-CL,es;q=0.9",
-        "Referer": "https://www.google.com/"
-    }
-    r = requests.get(url, headers=headers)
-    print("Ripley " + nombre + " status: " + str(r.status_code))
-    if r.status_code == 200:
-        if "pronto disponible" in r.text.lower():
-            print("Ripley " + nombre + " sin stock")
-        elif "agregar al carro" in r.text.lower():
-            print("Ripley " + nombre + " DISPONIBLE")
-            notify("Ripley: " + nombre + " disponible! " + url)
-        else:
-            print("Ripley " + nombre + " no determinado")
 
 def check_search_count():
     headers = {
@@ -98,37 +78,4 @@ check_falabella("Falabella ETB Ingles", FALABELLA_ETB_URL)
 check_lider("ETB Ingles", LIDER_URL1)
 check_lider("Sobres", LIDER_URL2)
 check_lider("Prismatic ETB", LIDER_URL3)
-check_ripley("Elite Box EN", RIPLEY_URL1)
-check_ripley("Poster EN", RIPLEY_URL2)
 check_search_count()
-
-def test_ripley_disponible():
-    headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "es-CL,es;q=0.9",
-        "Referer": "https://www.google.com/"
-    }
-    r = requests.get("https://simple.ripley.cl/set-de-cartas-pokemon-chaos-elite-trainer-box-en-2000411573047p", headers=headers)
-    print("Ripley DISPONIBLE status: " + str(r.status_code))
-
-test_ripley_disponible()
-
-def test_lider_disponible():
-    headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
-    r = requests.get("https://www.lider.cl/ip/juegos-de-mesa/6-sobres-de-mejora-chaos-rising-booster-bundle-ingles/00019621415416", headers=headers)
-    print("Lider DISPONIBLE status: " + str(r.status_code))
-    if "schema.org/InStock" in r.text:
-        print("Lider DISPONIBLE: tiene schema.org/InStock")
-    elif "schema.org/OutOfStock" in r.text:
-        print("Lider DISPONIBLE: tiene schema.org/OutOfStock")
-    else:
-        print("Lider DISPONIBLE: no tiene ninguno de los dos")
-        words = ["instock", "outofstock", "agregar al carro", "add-to-cart", "disponible", "agotado"]
-        text = r.text.lower()
-        for kw in words:
-            idx = text.find(kw)
-            if idx != -1:
-                print("'" + kw + "': " + r.text[max(0,idx-30):idx+100])
-
-test_lider_disponible()
