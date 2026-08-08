@@ -49,6 +49,31 @@ def check_lider(nombre, url):
     except Exception as e:
         print(nombre + " error: " + str(e))
 
+def check_lider_sobres(url):
+    try:
+        headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
+        r = requests.get(url, headers=headers, timeout=TIMEOUT)
+        if "schema.org/InStock" in r.text:
+            precio = None
+            match = re.search(r'"price"\s*:\s*"?([\d]+)"?', r.text)
+            if match:
+                precio = int(match.group(1))
+                print("Lider Sobres precio detectado: " + str(precio))
+            if precio is not None and precio <= 50000:
+                print("Lider Sobres DISPONIBLE a precio normal")
+                notify("Lider: Sobres disponible a $" + str(precio) + "! " + url)
+            elif precio is not None and precio > 50000:
+                print("Lider Sobres disponible pero precio elevado: $" + str(precio))
+            else:
+                print("Lider Sobres DISPONIBLE pero no se pudo detectar precio")
+                notify("Lider: Sobres disponible (verificar precio)! " + url)
+        elif "schema.org/OutOfStock" in r.text:
+            print("Lider Sobres sin stock")
+        else:
+            print("Lider Sobres no determinado")
+    except Exception as e:
+        print("Lider Sobres error: " + str(e))
+
 def check_search_count():
     try:
         headers = {
@@ -92,6 +117,6 @@ def notify(msg):
 check_falabella("Falabella Booster Bundle", FALABELLA_URL)
 check_falabella("Falabella ETB Ingles", FALABELLA_ETB_URL)
 check_lider("ETB Ingles", LIDER_URL1)
-check_lider("Sobres", LIDER_URL2)
+check_lider_sobres(LIDER_URL2)
 check_lider("Prismatic ETB", LIDER_URL3)
 check_search_count()
