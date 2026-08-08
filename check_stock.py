@@ -13,6 +13,7 @@ LIDER_URL2 = "https://www.lider.cl/ip/juegos-de-mesa/caja-de-sobres-paquete-de-r
 LIDER_URL3 = "https://www.lider.cl/ip/juegos-de-mesa/juego-de-cartas-pokemon-prismatic-evolutio-etb-english/00019621410513"
 SEARCH_URL = "https://www.falabella.com/falabella-cl/search?Ntt=Ascended+heroes"
 COUNT_FILE = "last_count.txt"
+SOBRES_STATE_FILE = "sobres_state.txt"
 UMBRAL = 2
 TIMEOUT = 15
 
@@ -53,24 +54,44 @@ def check_lider_sobres(url):
     try:
         headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
         r = requests.get(url, headers=headers, timeout=TIMEOUT)
+
+        last_state = ""
+        if os.path.exists(SOBRES_STATE_FILE):
+            with open(SOBRES_STATE_FILE, "r") as f:
+                last_state = f.read().strip()
+
         if "schema.org/InStock" in r.text:
             precio = None
             match = re.search(r'"price"\s*:\s*"?([\d]+)"?', r.text)
             if match:
                 precio = int(match.group(1))
-                print("Lider Sobres precio detectado: " + str(precio))
+                print("Lider Sobres precio: " + str(precio))
+
             if precio is not None and precio <= 50000:
-                print("Lider Sobres DISPONIBLE a precio normal")
-                notify("Lider: Sobres disponible a $" + str(precio) + "! " + url)
+                current_state = "instock_normal"
+                if last_state != "instock_normal":
+                    notify("Lider: Sobres disponible a $" + str(precio) + "! " + url)
             elif precio is not None and precio > 50000:
-                print("Lider Sobres disponible pero precio elevado: $" + str(precio))
+                current_state = "instock_caro"
+                if last_state != "instock_caro":
+                    notify("Lider: Sobres disponible pero precio elevado $" + str(precio) + " (envio internacional)")
             else:
-                print("Lider Sobres DISPONIBLE pero no se pudo detectar precio")
-                notify("Lider: Sobres disponible (verificar precio)! " + url)
+                current_state = "instock_sin_precio"
+                if last_state != "instock_sin_precio":
+                    notify("Lider: Sobres disponible (verificar precio)! " + url)
+
+            print("Lider Sobres estado: " + current_state)
+
         elif "schema.org/OutOfStock" in r.text:
+            current_state = "outofstock"
             print("Lider Sobres sin stock")
         else:
+            current_state = last_state
             print("Lider Sobres no determinado")
+
+        with open(SOBRES_STATE_FILE, "w") as f:
+            f.write(current_state)
+
     except Exception as e:
         print("Lider Sobres error: " + str(e))
 
