@@ -14,7 +14,7 @@ LIDER_URL3 = "https://www.lider.cl/ip/juegos-de-mesa/juego-de-cartas-pokemon-pri
 SEARCH_URL = "https://www.falabella.com/falabella-cl/search?Ntt=Ascended+heroes"
 COUNT_FILE = "last_count.txt"
 SOBRES_STATE_FILE = "sobres_state.txt"
-UMBRAL = 2
+UMBRAL = 1
 TIMEOUT = 15
 
 def check_falabella(nombre, url):
