@@ -16,17 +16,10 @@ def check_search():
         "Referer": "https://www.falabella.com/"
     }
     r = requests.get(SEARCH_URL, headers=headers, timeout=TIMEOUT)
-    print("Status: " + str(r.status_code))
-    
-    ids = re.findall(r'"productId"', r.text)
-    print("productId count: " + str(len(ids)))
-    
-    ids2 = re.findall(r'"sku"', r.text)
-    print("sku count: " + str(len(ids2)))
-    
-    ids3 = re.findall(r'"displayName"', r.text)
-    print("displayName count: " + str(len(ids3)))
-    
-    print("Primeros 2000 chars: " + r.text[:2000])
+    words = ["ascended", "pokemon", "results", "totalCount", "numFound", "productos", "booster", "trainer"]
+    for kw in words:
+        idx = r.text.lower().find(kw.lower())
+        if idx != -1:
+            print("'" + kw + "': " + r.text[max(0,idx-30):idx+150])
 
 check_search()
