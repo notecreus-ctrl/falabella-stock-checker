@@ -18,9 +18,15 @@ def check_search():
     r = requests.get(SEARCH_URL, headers=headers, timeout=TIMEOUT)
     matches = re.findall(r'falabella-cl/product/[^"&\s<>]+', r.text)
     seen = set()
+    productos = []
     for m in matches:
         if m not in seen:
             seen.add(m)
-            print(m)
+            if "ascended" in m.lower() or "pokemon" in m.lower():
+                productos.append(m)
+
+    print("Productos Ascended/Pokemon encontrados: " + str(len(productos)))
+    for p in productos:
+        print(p)
 
 check_search()
