@@ -16,10 +16,13 @@ def check_search():
         "Referer": "https://www.falabella.com/"
     }
     r = requests.get(SEARCH_URL, headers=headers, timeout=TIMEOUT)
-    words = ["ascended", "pokemon", "results", "totalCount", "numFound", "productos", "booster", "trainer"]
-    for kw in words:
-        idx = r.text.lower().find(kw.lower())
-        if idx != -1:
-            print("'" + kw + "': " + r.text[max(0,idx-30):idx+150])
+    
+    count1 = len(re.findall(r'falabella-cl/product/', r.text))
+    count2 = len(re.findall(r'&quot;url&quot;:&quot;https://www.falabella', r.text))
+    count3 = len(re.findall(r'media.falabella.com/falabellaCL/', r.text))
+    
+    print("URLs producto: " + str(count1))
+    print("URLs JSON: " + str(count2))
+    print("Imagenes producto: " + str(count3))
 
 check_search()
