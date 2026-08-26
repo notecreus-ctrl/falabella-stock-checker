@@ -26,6 +26,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add last_count.txt sobres_state.txt last_urls.txt
+          git add last_count.txt sobres_state.txt last_urls.txt last_urls_30th_falabella.txt last_urls_30th_lider.txt last_urls_30th_ripley.txt last_urls_30th_ansaldo.txt
           git diff --staged --quiet || git commit -m "Update count"
           git push
