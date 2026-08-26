@@ -15,7 +15,6 @@ SEARCH_URL = "https://www.falabella.com/falabella-cl/search?Ntt=Ascended+heroes"
 COUNT_FILE = "last_count.txt"
 URLS_FILE = "last_urls.txt"
 SOBRES_STATE_FILE = "sobres_state.txt"
-UMBRAL = 1
 TIMEOUT = 15
 
 def check_falabella(nombre, url):
@@ -109,7 +108,7 @@ def check_search_urls():
             "Accept-Language": "es-CL,es;q=0.9",
             "Referer": "https://www.falabella.com/"
         }
-        r = requests.get(SEARCH_URL, headers=headers, timeout=TIMEOUT)
+        r = requests.get(SEARCH_URL, headers=headers, timeout=30)
         matches = re.findall(r'falabella-cl/product/[^"&\s<>]+', r.text)
         seen = set()
         current_urls = set()
@@ -117,26 +116,29 @@ def check_search_urls():
             if m not in seen:
                 seen.add(m)
                 if "ascended" in m.lower() or "pokemon" in m.lower():
-                    current_urls.add(m)
+                    current_urls.add(m.strip())
 
         print("URLs Ascended/Pokemon: " + str(len(current_urls)))
 
         last_urls = set()
         if os.path.exists(URLS_FILE):
             with open(URLS_FILE, "r") as f:
-                for line in f:
+                for line in f.readlines():
                     line = line.strip()
                     if line:
                         last_urls.add(line)
 
+        print("URLs guardadas: " + str(len(last_urls)))
+
         nuevas = current_urls - last_urls
+        print("URLs nuevas: " + str(len(nuevas)))
         if nuevas:
             for url in nuevas:
-                notify("ALERTA Falabella: nuevo producto detectado! https://www." + url)
+                notify("ALERTA Falabella: nuevo producto! https://www." + url)
 
         with open(URLS_FILE, "w") as f:
-            for url in current_urls:
-                f.write(url + "\n")
+            for url in sorted(current_urls):
+                f.write(url.strip() + "\n")
 
     except Exception as e:
         error = "Busqueda error: " + str(e)
@@ -155,4 +157,3 @@ check_lider("ETB Ingles", LIDER_URL1)
 check_lider_sobres(LIDER_URL2)
 check_lider("Prismatic ETB", LIDER_URL3)
 check_search_urls()
-    
