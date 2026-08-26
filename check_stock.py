@@ -13,10 +13,10 @@ LIDER_URL2 = "https://www.lider.cl/ip/juegos-de-mesa/caja-de-sobres-paquete-de-r
 LIDER_URL3 = "https://www.lider.cl/ip/juegos-de-mesa/juego-de-cartas-pokemon-prismatic-evolutio-etb-english/00019621410513"
 
 SEARCH_FALABELLA_ASCENDED = "https://www.falabella.com/falabella-cl/search?Ntt=Ascended+heroes"
-SEARCH_FALABELLA_30TH = "https://www.falabella.com/falabella-cl/search?Ntt=pokemon+30th"
+SEARCH_FALABELLA_30TH = "https://www.falabella.com/falabella-cl/search?Ntt=pokemon+30th+celebration"
 SEARCH_LIDER_30TH = "https://www.lider.cl/search?Ntt=pokemon+30th+celebration"
-SEARCH_RIPLEY_30TH = "https://simple.ripley.cl/search?query=pokemon+30th"
-SEARCH_ANSALDO_30TH = "https://ansaldo.cl/search?q=pokemon+30th"
+SEARCH_RIPLEY_30TH = "https://simple.ripley.cl/search?query=pokemon+30th+celebration"
+SEARCH_ANSALDO_30TH = "https://ansaldo.cl/search?q=pokemon+30th+celebration"
 
 URLS_FILE = "last_urls.txt"
 URLS_30TH_FALABELLA_FILE = "last_urls_30th_falabella.txt"
@@ -127,7 +127,7 @@ def get_falabella_precio(url):
     except:
         return None
 
-def check_search_falabella(search_url, urls_file, keywords, nombre):
+def check_search_falabella(search_url, urls_file, keyword, nombre):
     try:
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -141,7 +141,7 @@ def check_search_falabella(search_url, urls_file, keywords, nombre):
         for m in matches:
             if m not in seen:
                 seen.add(m)
-                if any(kw in m.lower() for kw in keywords):
+                if keyword in m.lower():
                     current_urls.add(m.strip())
 
         print(nombre + " URLs: " + str(len(current_urls)))
@@ -182,7 +182,7 @@ def check_search_lider_30th():
         for m in matches:
             if m not in seen:
                 seen.add(m)
-                if any(kw in m.lower() for kw in ["30th", "celebration", "aniversario", "pokemon"]):
+                if "30th-celebration" in m.lower():
                     current_urls.add(m.strip())
 
         print("Lider 30th URLs: " + str(len(current_urls)))
@@ -220,7 +220,7 @@ def check_search_ripley_30th():
         print("Ripley 30th status: " + str(r.status_code))
 
         if r.status_code == 200:
-            matches = re.findall(r'href="(/[^"]*pokemon[^"]*30[^"]*)"', r.text, re.IGNORECASE)
+            matches = re.findall(r'href="(/[^"]*30th-celebration[^"]*)"', r.text, re.IGNORECASE)
             seen = set()
             current_urls = set()
             for m in matches:
@@ -267,7 +267,7 @@ def check_search_ansaldo_30th():
         for m in matches:
             if m not in seen:
                 seen.add(m)
-                if any(kw in m.lower() for kw in ["30th", "celebration", "aniversario", "pokemon"]):
+                if "30th-celebration" in m.lower():
                     current_urls.add(m.strip())
 
         print("Ansaldo 30th URLs: " + str(len(current_urls)))
@@ -310,8 +310,8 @@ check_falabella("Falabella ETB Ingles", FALABELLA_ETB_URL)
 check_lider("ETB Ingles", LIDER_URL1)
 check_lider_sobres(LIDER_URL2)
 check_lider("Prismatic ETB", LIDER_URL3)
-check_search_falabella(SEARCH_FALABELLA_ASCENDED, URLS_FILE, ["ascended", "pokemon"], "Ascended Heroes Falabella")
-check_search_falabella(SEARCH_FALABELLA_30TH, URLS_30TH_FALABELLA_FILE, ["30th", "celebration", "aniversario", "pokemon"], "30th Falabella")
+check_search_falabella(SEARCH_FALABELLA_ASCENDED, URLS_FILE, "ascended", "Ascended Heroes Falabella")
+check_search_falabella(SEARCH_FALABELLA_30TH, URLS_30TH_FALABELLA_FILE, "30th-celebration", "30th Falabella")
 check_search_lider_30th()
 check_search_ripley_30th()
 check_search_ansaldo_30th()
