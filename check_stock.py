@@ -11,9 +11,18 @@ FALABELLA_ETB_URL = "https://www.falabella.com/falabella-cl/product/152020461/po
 LIDER_URL1 = "https://www.lider.cl/ip/juegos-de-mesa/caja-coleccion-caja-de-entrenador-elite-ascended-heroes-en-ingles/00019621413247"
 LIDER_URL2 = "https://www.lider.cl/ip/juegos-de-mesa/caja-de-sobres-paquete-de-refuerzo-de-ascended-heroes/00019621414150"
 LIDER_URL3 = "https://www.lider.cl/ip/juegos-de-mesa/juego-de-cartas-pokemon-prismatic-evolutio-etb-english/00019621410513"
-SEARCH_URL = "https://www.falabella.com/falabella-cl/search?Ntt=Ascended+heroes"
-COUNT_FILE = "last_count.txt"
+
+SEARCH_FALABELLA_ASCENDED = "https://www.falabella.com/falabella-cl/search?Ntt=Ascended+heroes"
+SEARCH_FALABELLA_30TH = "https://www.falabella.com/falabella-cl/search?Ntt=pokemon+30th"
+SEARCH_LIDER_30TH = "https://www.lider.cl/search?Ntt=pokemon+30th+celebration"
+SEARCH_RIPLEY_30TH = "https://simple.ripley.cl/search?query=pokemon+30th"
+SEARCH_ANSALDO_30TH = "https://ansaldo.cl/search?q=pokemon+30th"
+
 URLS_FILE = "last_urls.txt"
+URLS_30TH_FALABELLA_FILE = "last_urls_30th_falabella.txt"
+URLS_30TH_LIDER_FILE = "last_urls_30th_lider.txt"
+URLS_30TH_RIPLEY_FILE = "last_urls_30th_ripley.txt"
+URLS_30TH_ANSALDO_FILE = "last_urls_30th_ansaldo.txt"
 SOBRES_STATE_FILE = "sobres_state.txt"
 TIMEOUT = 15
 
@@ -101,47 +110,192 @@ def check_lider_sobres(url):
         print(error)
         notify("ERROR - " + error)
 
-def check_search_urls():
+def get_falabella_precio(url):
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Referer": "https://www.falabella.com/"
+        }
+        r = requests.get(url, headers=headers, timeout=TIMEOUT)
+        match = re.search(r'"originalPrice":(\d+)', r.text)
+        if match:
+            return int(match.group(1))
+        match2 = re.search(r'"price":(\d+)', r.text)
+        if match2:
+            return int(match2.group(1))
+        return None
+    except:
+        return None
+
+def check_search_falabella(search_url, urls_file, keywords, nombre):
     try:
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             "Accept-Language": "es-CL,es;q=0.9",
             "Referer": "https://www.falabella.com/"
         }
-        r = requests.get(SEARCH_URL, headers=headers, timeout=30)
+        r = requests.get(search_url, headers=headers, timeout=30)
         matches = re.findall(r'falabella-cl/product/[^"&\s<>]+', r.text)
         seen = set()
         current_urls = set()
         for m in matches:
             if m not in seen:
                 seen.add(m)
-                if "ascended" in m.lower() or "pokemon" in m.lower():
+                if any(kw in m.lower() for kw in keywords):
                     current_urls.add(m.strip())
 
-        print("URLs Ascended/Pokemon: " + str(len(current_urls)))
+        print(nombre + " URLs: " + str(len(current_urls)))
 
         last_urls = set()
-        if os.path.exists(URLS_FILE):
-            with open(URLS_FILE, "r") as f:
+        if os.path.exists(urls_file):
+            with open(urls_file, "r") as f:
                 for line in f.readlines():
                     line = line.strip()
                     if line:
                         last_urls.add(line)
 
-        print("URLs guardadas: " + str(len(last_urls)))
-
         nuevas = current_urls - last_urls
-        print("URLs nuevas: " + str(len(nuevas)))
         if nuevas:
             for url in nuevas:
-                notify("ALERTA Falabella: nuevo producto! https://www." + url)
+                precio = get_falabella_precio("https://www." + url)
+                if precio:
+                    notify("ALERTA " + nombre + ": nuevo producto a $" + str(precio) + "! https://www." + url)
+                else:
+                    notify("ALERTA " + nombre + ": nuevo producto! https://www." + url)
 
-        with open(URLS_FILE, "w") as f:
+        with open(urls_file, "w") as f:
             for url in sorted(current_urls):
                 f.write(url.strip() + "\n")
 
     except Exception as e:
-        error = "Busqueda error: " + str(e)
+        error = nombre + " busqueda error: " + str(e)
+        print(error)
+        notify("ERROR - " + error)
+
+def check_search_lider_30th():
+    try:
+        headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
+        r = requests.get(SEARCH_LIDER_30TH, headers=headers, timeout=30)
+        matches = re.findall(r'href="(/ip/[^"]+)"', r.text)
+        seen = set()
+        current_urls = set()
+        for m in matches:
+            if m not in seen:
+                seen.add(m)
+                if any(kw in m.lower() for kw in ["30th", "celebration", "aniversario", "pokemon"]):
+                    current_urls.add(m.strip())
+
+        print("Lider 30th URLs: " + str(len(current_urls)))
+
+        last_urls = set()
+        if os.path.exists(URLS_30TH_LIDER_FILE):
+            with open(URLS_30TH_LIDER_FILE, "r") as f:
+                for line in f.readlines():
+                    line = line.strip()
+                    if line:
+                        last_urls.add(line)
+
+        nuevas = current_urls - last_urls
+        if nuevas:
+            for url in nuevas:
+                notify("ALERTA Lider 30th: nuevo producto! https://www.lider.cl" + url)
+
+        with open(URLS_30TH_LIDER_FILE, "w") as f:
+            for url in sorted(current_urls):
+                f.write(url.strip() + "\n")
+
+    except Exception as e:
+        error = "Lider 30th error: " + str(e)
+        print(error)
+        notify("ERROR - " + error)
+
+def check_search_ripley_30th():
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1",
+            "Accept-Language": "es-CL,es;q=0.9",
+            "Referer": "https://simple.ripley.cl/"
+        }
+        r = requests.get(SEARCH_RIPLEY_30TH, headers=headers, timeout=30)
+        print("Ripley 30th status: " + str(r.status_code))
+
+        if r.status_code == 200:
+            matches = re.findall(r'href="(/[^"]*pokemon[^"]*30[^"]*)"', r.text, re.IGNORECASE)
+            seen = set()
+            current_urls = set()
+            for m in matches:
+                if m not in seen:
+                    seen.add(m)
+                    current_urls.add(m.strip())
+
+            print("Ripley 30th URLs: " + str(len(current_urls)))
+
+            last_urls = set()
+            if os.path.exists(URLS_30TH_RIPLEY_FILE):
+                with open(URLS_30TH_RIPLEY_FILE, "r") as f:
+                    for line in f.readlines():
+                        line = line.strip()
+                        if line:
+                            last_urls.add(line)
+
+            nuevas = current_urls - last_urls
+            if nuevas:
+                for url in nuevas:
+                    notify("ALERTA Ripley 30th: nuevo producto! https://simple.ripley.cl" + url)
+
+            with open(URLS_30TH_RIPLEY_FILE, "w") as f:
+                for url in sorted(current_urls):
+                    f.write(url.strip() + "\n")
+
+    except Exception as e:
+        error = "Ripley 30th error: " + str(e)
+        print(error)
+        notify("ERROR - " + error)
+
+def check_search_ansaldo_30th():
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Referer": "https://ansaldo.cl/"
+        }
+        r = requests.get(SEARCH_ANSALDO_30TH, headers=headers, timeout=30)
+        print("Ansaldo 30th status: " + str(r.status_code))
+
+        matches = re.findall(r'href="(https://ansaldo\.cl/products/[^"]+)"', r.text)
+        seen = set()
+        current_urls = set()
+        for m in matches:
+            if m not in seen:
+                seen.add(m)
+                if any(kw in m.lower() for kw in ["30th", "celebration", "aniversario", "pokemon"]):
+                    current_urls.add(m.strip())
+
+        print("Ansaldo 30th URLs: " + str(len(current_urls)))
+
+        last_urls = set()
+        if os.path.exists(URLS_30TH_ANSALDO_FILE):
+            with open(URLS_30TH_ANSALDO_FILE, "r") as f:
+                for line in f.readlines():
+                    line = line.strip()
+                    if line:
+                        last_urls.add(line)
+
+        nuevas = current_urls - last_urls
+        if nuevas:
+            for url in nuevas:
+                precio_match = re.search(r'"price":"([\d.]+)"', r.text)
+                precio = int(float(precio_match.group(1))) if precio_match else None
+                if precio:
+                    notify("ALERTA Ansaldo 30th: nuevo producto a $" + str(precio) + "! " + url)
+                else:
+                    notify("ALERTA Ansaldo 30th: nuevo producto! " + url)
+
+        with open(URLS_30TH_ANSALDO_FILE, "w") as f:
+            for url in sorted(current_urls):
+                f.write(url.strip() + "\n")
+
+    except Exception as e:
+        error = "Ansaldo 30th error: " + str(e)
         print(error)
         notify("ERROR - " + error)
 
@@ -156,4 +310,8 @@ check_falabella("Falabella ETB Ingles", FALABELLA_ETB_URL)
 check_lider("ETB Ingles", LIDER_URL1)
 check_lider_sobres(LIDER_URL2)
 check_lider("Prismatic ETB", LIDER_URL3)
-check_search_urls()
+check_search_falabella(SEARCH_FALABELLA_ASCENDED, URLS_FILE, ["ascended", "pokemon"], "Ascended Heroes Falabella")
+check_search_falabella(SEARCH_FALABELLA_30TH, URLS_30TH_FALABELLA_FILE, ["30th", "celebration", "aniversario", "pokemon"], "30th Falabella")
+check_search_lider_30th()
+check_search_ripley_30th()
+check_search_ansaldo_30th()
