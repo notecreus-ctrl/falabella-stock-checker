@@ -315,3 +315,19 @@ check_search_falabella(SEARCH_FALABELLA_30TH, URLS_30TH_FALABELLA_FILE, "30th-ce
 check_search_lider_30th()
 check_search_ripley_30th()
 check_search_ansaldo_30th()
+
+
+def find_asmodee():
+    try:
+        r = requests.get("https://api.mercadolibre.com/sites/MLC/search?q=pokemon+etb&nickname=ASMODEE", timeout=TIMEOUT)
+        data = r.json()
+        print("Asmodee status: " + str(r.status_code))
+        print("Total resultados: " + str(data.get("paging", {}).get("total", 0)))
+        if data.get("results"):
+            seller = data["results"][0].get("seller", {})
+            print("Seller ID: " + str(seller.get("id")))
+            print("Seller nickname: " + str(seller.get("nickname")))
+    except Exception as e:
+        print("Asmodee error: " + str(e))
+
+find_asmodee()
