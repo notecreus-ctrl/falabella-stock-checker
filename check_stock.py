@@ -12,18 +12,19 @@ LIDER_URL1 = "https://www.lider.cl/ip/juegos-de-mesa/caja-coleccion-caja-de-entr
 LIDER_URL2 = "https://www.lider.cl/ip/juegos-de-mesa/caja-de-sobres-paquete-de-refuerzo-de-ascended-heroes/00019621414150"
 LIDER_URL3 = "https://www.lider.cl/ip/juegos-de-mesa/juego-de-cartas-pokemon-prismatic-evolutio-etb-english/00019621410513"
 
+ML_URL1 = "https://api.mercadolibre.com/items/MLC4419232584"
+
 SEARCH_FALABELLA_ASCENDED = "https://www.falabella.com/falabella-cl/search?Ntt=Ascended+heroes"
 SEARCH_FALABELLA_30TH = "https://www.falabella.com/falabella-cl/search?Ntt=pokemon+30th+celebration"
 SEARCH_LIDER_30TH = "https://www.lider.cl/search?Ntt=pokemon+30th+celebration"
-SEARCH_RIPLEY_30TH = "https://simple.ripley.cl/search?query=pokemon+30th+celebration"
 SEARCH_ANSALDO_30TH = "https://ansaldo.cl/search?q=pokemon+30th+celebration"
 
 URLS_FILE = "last_urls.txt"
 URLS_30TH_FALABELLA_FILE = "last_urls_30th_falabella.txt"
 URLS_30TH_LIDER_FILE = "last_urls_30th_lider.txt"
-URLS_30TH_RIPLEY_FILE = "last_urls_30th_ripley.txt"
 URLS_30TH_ANSALDO_FILE = "last_urls_30th_ansaldo.txt"
 SOBRES_STATE_FILE = "sobres_state.txt"
+ML_STATE_FILE = "ml_state.txt"
 TIMEOUT = 15
 
 def check_falabella(nombre, url):
@@ -107,6 +108,51 @@ def check_lider_sobres(url):
 
     except Exception as e:
         error = "Lider Sobres error: " + str(e)
+        print(error)
+        notify("ERROR - " + error)
+
+def check_ml(nombre, item_id, url_web):
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "application/json"
+        }
+        r = requests.get("https://api.mercadolibre.com/items/" + item_id, headers=headers, timeout=TIMEOUT)
+        print("ML " + nombre + " status: " + str(r.status_code))
+
+        if r.status_code == 200:
+            data = r.json()
+            precio = data.get("price", 0)
+            stock = data.get("available_quantity", 0)
+            status = data.get("status", "")
+            print("ML " + nombre + " precio: $" + str(precio) + " stock: " + str(stock) + " status: " + status)
+
+            state_key = item_id
+            last_data = {}
+            if os.path.exists(ML_STATE_FILE):
+                with open(ML_STATE_FILE, "r") as f:
+                    for line in f.readlines():
+                        parts = line.strip().split("|")
+                        if len(parts) == 3:
+                            last_data[parts[0]] = {"precio": int(parts[1]), "stock": int(parts[2])}
+
+            last_precio = last_data.get(state_key, {}).get("precio", 0)
+            last_stock = last_data.get(state_key, {}).get("stock", -1)
+
+            if stock > 0 and last_stock == 0:
+                notify("ML: " + nombre + " disponible a $" + str(precio) + "! " + url_web)
+            elif stock > 0 and precio < last_precio and last_precio > 0:
+                notify("ML: " + nombre + " bajo de precio $" + str(last_precio) + " -> $" + str(precio) + "! " + url_web)
+            elif stock == 0 and last_stock > 0:
+                print("ML " + nombre + " se agoto")
+
+            last_data[state_key] = {"precio": int(precio), "stock": int(stock)}
+            with open(ML_STATE_FILE, "w") as f:
+                for k, v in last_data.items():
+                    f.write(k + "|" + str(v["precio"]) + "|" + str(v["stock"]) + "\n")
+
+    except Exception as e:
+        error = "ML " + nombre + " error: " + str(e)
         print(error)
         notify("ERROR - " + error)
 
@@ -209,49 +255,6 @@ def check_search_lider_30th():
         print(error)
         notify("ERROR - " + error)
 
-def check_search_ripley_30th():
-    try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1",
-            "Accept-Language": "es-CL,es;q=0.9",
-            "Referer": "https://simple.ripley.cl/"
-        }
-        r = requests.get(SEARCH_RIPLEY_30TH, headers=headers, timeout=30)
-        print("Ripley 30th status: " + str(r.status_code))
-
-        if r.status_code == 200:
-            matches = re.findall(r'href="(/[^"]*30th-celebration[^"]*)"', r.text, re.IGNORECASE)
-            seen = set()
-            current_urls = set()
-            for m in matches:
-                if m not in seen:
-                    seen.add(m)
-                    current_urls.add(m.strip())
-
-            print("Ripley 30th URLs: " + str(len(current_urls)))
-
-            last_urls = set()
-            if os.path.exists(URLS_30TH_RIPLEY_FILE):
-                with open(URLS_30TH_RIPLEY_FILE, "r") as f:
-                    for line in f.readlines():
-                        line = line.strip()
-                        if line:
-                            last_urls.add(line)
-
-            nuevas = current_urls - last_urls
-            if nuevas:
-                for url in nuevas:
-                    notify("ALERTA Ripley 30th: nuevo producto! https://simple.ripley.cl" + url)
-
-            with open(URLS_30TH_RIPLEY_FILE, "w") as f:
-                for url in sorted(current_urls):
-                    f.write(url.strip() + "\n")
-
-    except Exception as e:
-        error = "Ripley 30th error: " + str(e)
-        print(error)
-        notify("ERROR - " + error)
-
 def check_search_ansaldo_30th():
     try:
         headers = {
@@ -310,24 +313,8 @@ check_falabella("Falabella ETB Ingles", FALABELLA_ETB_URL)
 check_lider("ETB Ingles", LIDER_URL1)
 check_lider_sobres(LIDER_URL2)
 check_lider("Prismatic ETB", LIDER_URL3)
+check_ml("Ascended Heroes ETB Ingles", "MLC4419232584", "https://www.mercadolibre.cl/p/MLC76056150")
 check_search_falabella(SEARCH_FALABELLA_ASCENDED, URLS_FILE, "ascended", "Ascended Heroes Falabella")
 check_search_falabella(SEARCH_FALABELLA_30TH, URLS_30TH_FALABELLA_FILE, "30th-celebration", "30th Falabella")
 check_search_lider_30th()
-check_search_ripley_30th()
 check_search_ansaldo_30th()
-
-
-def find_asmodee():
-    try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "Accept": "application/json",
-            "Referer": "https://www.mercadolibre.cl/"
-        }
-        r = requests.get("https://www.mercadolibre.cl/jms/mlc/lgz/msl/search?q=pokemon+etb+asmodee&limit=10", headers=headers, timeout=TIMEOUT)
-        print("ML status: " + str(r.status_code))
-        print("Respuesta: " + r.text[:500])
-    except Exception as e:
-        print("ML error: " + str(e))
-
-find_asmodee()
