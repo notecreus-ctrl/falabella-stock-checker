@@ -320,13 +320,14 @@ check_search_ansaldo_30th()
 def find_asmodee():
     try:
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept": "application/json"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Accept": "application/json",
+            "Referer": "https://www.mercadolibre.cl/"
         }
-        r = requests.get("https://api.mercadolibre.com/sites/MLC/search?q=pokemon+etb&nickname=ASMODEE-CL", headers=headers, timeout=TIMEOUT)
-        print("Asmodee status: " + str(r.status_code))
+        r = requests.get("https://www.mercadolibre.cl/jms/mlc/lgz/msl/search?q=pokemon+etb+asmodee&limit=10", headers=headers, timeout=TIMEOUT)
+        print("ML status: " + str(r.status_code))
         print("Respuesta: " + r.text[:500])
     except Exception as e:
-        print("Asmodee error: " + str(e))
+        print("ML error: " + str(e))
 
 find_asmodee()
