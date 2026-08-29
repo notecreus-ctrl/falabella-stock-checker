@@ -12,8 +12,6 @@ LIDER_URL1 = "https://www.lider.cl/ip/juegos-de-mesa/caja-coleccion-caja-de-entr
 LIDER_URL2 = "https://www.lider.cl/ip/juegos-de-mesa/caja-de-sobres-paquete-de-refuerzo-de-ascended-heroes/00019621414150"
 LIDER_URL3 = "https://www.lider.cl/ip/juegos-de-mesa/juego-de-cartas-pokemon-prismatic-evolutio-etb-english/00019621410513"
 
-ML_URL1 = "https://api.mercadolibre.com/items/MLC4419232584"
-
 SEARCH_FALABELLA_ASCENDED = "https://www.falabella.com/falabella-cl/search?Ntt=Ascended+heroes"
 SEARCH_FALABELLA_30TH = "https://www.falabella.com/falabella-cl/search?Ntt=pokemon+30th+celebration"
 SEARCH_LIDER_30TH = "https://www.lider.cl/search?Ntt=pokemon+30th+celebration"
@@ -24,7 +22,6 @@ URLS_30TH_FALABELLA_FILE = "last_urls_30th_falabella.txt"
 URLS_30TH_LIDER_FILE = "last_urls_30th_lider.txt"
 URLS_30TH_ANSALDO_FILE = "last_urls_30th_ansaldo.txt"
 SOBRES_STATE_FILE = "sobres_state.txt"
-ML_STATE_FILE = "ml_state.txt"
 TIMEOUT = 15
 
 def check_falabella(nombre, url):
@@ -111,51 +108,6 @@ def check_lider_sobres(url):
         print(error)
         notify("ERROR - " + error)
 
-def check_ml(nombre, item_id, url_web):
-    try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept": "application/json"
-        }
-        r = requests.get("https://api.mercadolibre.com/items/" + item_id, headers=headers, timeout=TIMEOUT)
-        print("ML " + nombre + " status: " + str(r.status_code))
-
-        if r.status_code == 200:
-            data = r.json()
-            precio = data.get("price", 0)
-            stock = data.get("available_quantity", 0)
-            status = data.get("status", "")
-            print("ML " + nombre + " precio: $" + str(precio) + " stock: " + str(stock) + " status: " + status)
-
-            state_key = item_id
-            last_data = {}
-            if os.path.exists(ML_STATE_FILE):
-                with open(ML_STATE_FILE, "r") as f:
-                    for line in f.readlines():
-                        parts = line.strip().split("|")
-                        if len(parts) == 3:
-                            last_data[parts[0]] = {"precio": int(parts[1]), "stock": int(parts[2])}
-
-            last_precio = last_data.get(state_key, {}).get("precio", 0)
-            last_stock = last_data.get(state_key, {}).get("stock", -1)
-
-            if stock > 0 and last_stock == 0:
-                notify("ML: " + nombre + " disponible a $" + str(precio) + "! " + url_web)
-            elif stock > 0 and precio < last_precio and last_precio > 0:
-                notify("ML: " + nombre + " bajo de precio $" + str(last_precio) + " -> $" + str(precio) + "! " + url_web)
-            elif stock == 0 and last_stock > 0:
-                print("ML " + nombre + " se agoto")
-
-            last_data[state_key] = {"precio": int(precio), "stock": int(stock)}
-            with open(ML_STATE_FILE, "w") as f:
-                for k, v in last_data.items():
-                    f.write(k + "|" + str(v["precio"]) + "|" + str(v["stock"]) + "\n")
-
-    except Exception as e:
-        error = "ML " + nombre + " error: " + str(e)
-        print(error)
-        notify("ERROR - " + error)
-
 def get_falabella_precio(url):
     try:
         headers = {
@@ -181,14 +133,15 @@ def check_search_falabella(search_url, urls_file, keyword, nombre):
             "Referer": "https://www.falabella.com/"
         }
         r = requests.get(search_url, headers=headers, timeout=30)
-        matches = re.findall(r'falabella-cl/product/[^"&\s<>]+', r.text)
+        matches = re.findall(r'falabella-cl/product/[^"&\s<>\\]+', r.text)
         seen = set()
         current_urls = set()
         for m in matches:
+            m = m.split("\\u0026")[0].split("&")[0].strip()
             if m not in seen:
                 seen.add(m)
-                if keyword in m.lower():
-                    current_urls.add(m.strip())
+                if keyword in m.lower() and "espanol" not in m.lower() and "español" not in m.lower():
+                    current_urls.add(m)
 
         print(nombre + " URLs: " + str(len(current_urls)))
 
@@ -313,7 +266,6 @@ check_falabella("Falabella ETB Ingles", FALABELLA_ETB_URL)
 check_lider("ETB Ingles", LIDER_URL1)
 check_lider_sobres(LIDER_URL2)
 check_lider("Prismatic ETB", LIDER_URL3)
-check_ml("Ascended Heroes ETB Ingles", "MLC4419232584", "https://www.mercadolibre.cl/p/MLC76056150")
 check_search_falabella(SEARCH_FALABELLA_ASCENDED, URLS_FILE, "ascended", "Ascended Heroes Falabella")
 check_search_falabella(SEARCH_FALABELLA_30TH, URLS_30TH_FALABELLA_FILE, "30th-celebration", "30th Falabella")
 check_search_lider_30th()
