@@ -11,6 +11,7 @@ FALABELLA_ETB_URL = "https://www.falabella.com/falabella-cl/product/152020461/po
 LIDER_URL1 = "https://www.lider.cl/ip/juegos-de-mesa/caja-coleccion-caja-de-entrenador-elite-ascended-heroes-en-ingles/00019621413247"
 LIDER_URL2 = "https://www.lider.cl/ip/juegos-de-mesa/caja-de-sobres-paquete-de-refuerzo-de-ascended-heroes/00019621414150"
 LIDER_URL3 = "https://www.lider.cl/ip/juegos-de-mesa/juego-de-cartas-pokemon-prismatic-evolutio-etb-english/00019621410513"
+LIDER_URL4 = "https://www.lider.cl/ip/juegos-de-mesa/coleccion-pokemon-coleccion-ascended-heroes-premium-poster-gardevoir-ingles/00082065050024"
 
 SEARCH_FALABELLA_ASCENDED = "https://www.falabella.com/falabella-cl/search?Ntt=Ascended+heroes"
 SEARCH_FALABELLA_30TH = "https://www.falabella.com/falabella-cl/search?Ntt=pokemon+30th+celebration"
@@ -266,6 +267,7 @@ check_falabella("Falabella ETB Ingles", FALABELLA_ETB_URL)
 check_lider("ETB Ingles", LIDER_URL1)
 check_lider_sobres(LIDER_URL2)
 check_lider("Prismatic ETB", LIDER_URL3)
+check_lider("Poster Gardevoir Ingles", LIDER_URL4)
 check_search_falabella(SEARCH_FALABELLA_ASCENDED, URLS_FILE, "ascended", "Ascended Heroes Falabella")
 check_search_falabella(SEARCH_FALABELLA_30TH, URLS_30TH_FALABELLA_FILE, "30th-celebration", "30th Falabella")
 check_search_lider_30th()
