@@ -12,16 +12,17 @@ LIDER_URL1 = "https://www.lider.cl/ip/juegos-de-mesa/caja-coleccion-caja-de-entr
 LIDER_URL2 = "https://www.lider.cl/ip/juegos-de-mesa/caja-de-sobres-paquete-de-refuerzo-de-ascended-heroes/00019621414150"
 LIDER_URL3 = "https://www.lider.cl/ip/juegos-de-mesa/juego-de-cartas-pokemon-prismatic-evolutio-etb-english/00019621410513"
 LIDER_URL4 = "https://www.lider.cl/ip/juegos-de-mesa/coleccion-pokemon-coleccion-ascended-heroes-premium-poster-gardevoir-ingles/00082065050024"
+LIDER_URL5 = "https://www.lider.cl/ip/figuras-de-accion-y-coleccionables/pokemon-151-poster-collection-ingles/00082065085316"
+LIDER_URL6 = "https://www.lider.cl/ip/juegos-de-mesa/caja-con-poster-y-sobres-premium-poster-lucario-ascended-heroes-ingles/00019621414143"
+LIDER_URL7 = "https://www.lider.cl/ip/juegos-de-mesa/pokemon-premium-poster-collection-mega-gardevoir-ingles/01019621414143"
+LIDER_URL8 = "https://www.lider.cl/ip/juguetes-por-edad/pokemon-tcg-ascended-heroes-premium-poster-collection-ing-mega-gardevoir/00780544040607"
+LIDER_URL9 = "https://super.lider.cl/ip/jugueteria/00019621414143"
+LIDER_URL10 = "https://www.lider.cl/ip/juegos-de-mesa/disfruta-de-la-coleccion-premium-de-prismatic-evolution-ingles/00019621411280"
+LIDER_URL11 = "https://www.lider.cl/ip/juegos-de-mesa/caja-de-sobres-con-figura-disfruta-de-la-coleccion-premium-de-prismatic-evolution-ingles/00019621411276"
 
 SEARCH_FALABELLA_ASCENDED = "https://www.falabella.com/falabella-cl/search?Ntt=Ascended+heroes"
-SEARCH_FALABELLA_30TH = "https://www.falabella.com/falabella-cl/search?Ntt=pokemon+30th+celebration"
-SEARCH_LIDER_30TH = "https://www.lider.cl/search?Ntt=pokemon+30th+celebration"
-SEARCH_ANSALDO_30TH = "https://ansaldo.cl/search?q=pokemon+30th+celebration"
 
 URLS_FILE = "last_urls.txt"
-URLS_30TH_FALABELLA_FILE = "last_urls_30th_falabella.txt"
-URLS_30TH_LIDER_FILE = "last_urls_30th_lider.txt"
-URLS_30TH_ANSALDO_FILE = "last_urls_30th_ansaldo.txt"
 SOBRES_STATE_FILE = "sobres_state.txt"
 TIMEOUT = 15
 
@@ -172,90 +173,6 @@ def check_search_falabella(search_url, urls_file, keyword, nombre):
         print(error)
         notify("ERROR - " + error)
 
-def check_search_lider_30th():
-    try:
-        headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
-        r = requests.get(SEARCH_LIDER_30TH, headers=headers, timeout=30)
-        matches = re.findall(r'href="(/ip/[^"]+)"', r.text)
-        seen = set()
-        current_urls = set()
-        for m in matches:
-            if m not in seen:
-                seen.add(m)
-                if "30th-celebration" in m.lower():
-                    current_urls.add(m.strip())
-
-        print("Lider 30th URLs: " + str(len(current_urls)))
-
-        last_urls = set()
-        if os.path.exists(URLS_30TH_LIDER_FILE):
-            with open(URLS_30TH_LIDER_FILE, "r") as f:
-                for line in f.readlines():
-                    line = line.strip()
-                    if line:
-                        last_urls.add(line)
-
-        nuevas = current_urls - last_urls
-        if nuevas:
-            for url in nuevas:
-                notify("ALERTA Lider 30th: nuevo producto! https://www.lider.cl" + url)
-
-        with open(URLS_30TH_LIDER_FILE, "w") as f:
-            for url in sorted(current_urls):
-                f.write(url.strip() + "\n")
-
-    except Exception as e:
-        error = "Lider 30th error: " + str(e)
-        print(error)
-        notify("ERROR - " + error)
-
-def check_search_ansaldo_30th():
-    try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Referer": "https://ansaldo.cl/"
-        }
-        r = requests.get(SEARCH_ANSALDO_30TH, headers=headers, timeout=30)
-        print("Ansaldo 30th status: " + str(r.status_code))
-
-        matches = re.findall(r'href="(https://ansaldo\.cl/products/[^"]+)"', r.text)
-        seen = set()
-        current_urls = set()
-        for m in matches:
-            if m not in seen:
-                seen.add(m)
-                if "30th-celebration" in m.lower():
-                    current_urls.add(m.strip())
-
-        print("Ansaldo 30th URLs: " + str(len(current_urls)))
-
-        last_urls = set()
-        if os.path.exists(URLS_30TH_ANSALDO_FILE):
-            with open(URLS_30TH_ANSALDO_FILE, "r") as f:
-                for line in f.readlines():
-                    line = line.strip()
-                    if line:
-                        last_urls.add(line)
-
-        nuevas = current_urls - last_urls
-        if nuevas:
-            for url in nuevas:
-                precio_match = re.search(r'"price":"([\d.]+)"', r.text)
-                precio = int(float(precio_match.group(1))) if precio_match else None
-                if precio:
-                    notify("ALERTA Ansaldo 30th: nuevo producto a $" + str(precio) + "! " + url)
-                else:
-                    notify("ALERTA Ansaldo 30th: nuevo producto! " + url)
-
-        with open(URLS_30TH_ANSALDO_FILE, "w") as f:
-            for url in sorted(current_urls):
-                f.write(url.strip() + "\n")
-
-    except Exception as e:
-        error = "Ansaldo 30th error: " + str(e)
-        print(error)
-        notify("ERROR - " + error)
-
 def notify(msg):
     try:
         requests.get("https://api.telegram.org/bot" + TOKEN + "/sendMessage", params={"chat_id": CHAT_ID, "text": msg}, timeout=TIMEOUT)
@@ -268,7 +185,11 @@ check_lider("ETB Ingles", LIDER_URL1)
 check_lider_sobres(LIDER_URL2)
 check_lider("Prismatic ETB", LIDER_URL3)
 check_lider("Poster Gardevoir Ingles", LIDER_URL4)
+check_lider("Pokemon 151 Poster Ingles", LIDER_URL5)
+check_lider("Poster Lucario Ascended Ingles", LIDER_URL6)
+check_lider("Poster Mega Gardevoir Ingles", LIDER_URL7)
+check_lider("Poster Mega Gardevoir Ingles v2", LIDER_URL8)
+check_lider("Lider Super Poster", LIDER_URL9)
+check_lider("Prismatic Evolution Premium Ingles", LIDER_URL10)
+check_lider("Prismatic Evolution Sobres Figura Ingles", LIDER_URL11)
 check_search_falabella(SEARCH_FALABELLA_ASCENDED, URLS_FILE, "ascended", "Ascended Heroes Falabella")
-check_search_falabella(SEARCH_FALABELLA_30TH, URLS_30TH_FALABELLA_FILE, "30th-celebration", "30th Falabella")
-check_search_lider_30th()
-check_search_ansaldo_30th()
