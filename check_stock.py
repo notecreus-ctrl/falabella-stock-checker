@@ -173,6 +173,23 @@ def check_search_falabella(search_url, urls_file, keyword, nombre):
         print(error)
         notify("ERROR - " + error)
 
+def test_paris(nombre, url):
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept-Language": "es-CL,es;q=0.9",
+            "Referer": "https://www.paris.cl/"
+        }
+        r = requests.get(url, headers=headers, timeout=TIMEOUT)
+        print("Paris " + nombre + " status: " + str(r.status_code))
+        words = ["instock", "outofstock", "isOutOfStock", "agregar al carro", "sin stock", "agotado", "disponible", "schema.org"]
+        for kw in words:
+            idx = r.text.lower().find(kw.lower())
+            if idx != -1:
+                print("'" + kw + "': " + r.text[max(0,idx-30):idx+150])
+    except Exception as e:
+        print("Paris " + nombre + " error: " + str(e))
+
 def notify(msg):
     try:
         requests.get("https://api.telegram.org/bot" + TOKEN + "/sendMessage", params={"chat_id": CHAT_ID, "text": msg}, timeout=TIMEOUT)
@@ -193,3 +210,5 @@ check_lider("Lider Super Poster", LIDER_URL9)
 check_lider("Prismatic Evolution Premium Ingles", LIDER_URL10)
 check_lider("Prismatic Evolution Sobres Figura Ingles", LIDER_URL11)
 check_search_falabella(SEARCH_FALABELLA_ASCENDED, URLS_FILE, "ascended", "Ascended Heroes Falabella")
+test_paris("ETB 30th", "https://www.paris.cl/juego-de-cartas-pokemon-30th-elite-trainer-box-english-574897999.html")
+test_paris("EX Box 30th", "https://www.paris.cl/juego-de-cartas-pokemon-30th-celebration-ex-box-english-574899999.html")
