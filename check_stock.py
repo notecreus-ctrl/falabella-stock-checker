@@ -8,6 +8,7 @@ CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
 FALABELLA_URL = "https://www.falabella.com/falabella-cl/product/" + SKU_ID + "/ascended-heroes-booster-bund-pokemon/" + SKU_ID
 FALABELLA_ETB_URL = "https://www.falabella.com/falabella-cl/product/152020461/pokemon-tcg-ascended-heroes-elite-trainer-box-ingles/152020462"
+FALABELLA_ETB_30TH_URL = "https://www.falabella.com/falabella-cl/product/80830450/caja-30-aniversario-elite-tr-pokemon/80830450"
 LIDER_URL1 = "https://www.lider.cl/ip/juegos-de-mesa/caja-coleccion-caja-de-entrenador-elite-ascended-heroes-en-ingles/00019621413247"
 LIDER_URL2 = "https://www.lider.cl/ip/juegos-de-mesa/caja-de-sobres-paquete-de-refuerzo-de-ascended-heroes/00019621414150"
 LIDER_URL3 = "https://www.lider.cl/ip/juegos-de-mesa/juego-de-cartas-pokemon-prismatic-evolutio-etb-english/00019621410513"
@@ -185,6 +186,7 @@ def notify(msg):
 
 check_falabella("Falabella Booster Bundle", FALABELLA_URL)
 check_falabella("Falabella ETB Ingles", FALABELLA_ETB_URL)
+check_falabella("Falabella ETB 30 Aniversario", FALABELLA_ETB_30TH_URL)
 check_lider("ETB Ingles", LIDER_URL1)
 check_lider_sobres(LIDER_URL2)
 check_lider("Prismatic ETB", LIDER_URL3)
