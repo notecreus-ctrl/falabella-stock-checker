@@ -167,8 +167,9 @@ def check_search_falabella(search_url, urls_file, keyword, nombre):
                 else:
                     notify("ALERTA " + nombre + ": nuevo producto! https://www." + url)
 
+        todas = last_urls | current_urls
         with open(urls_file, "w") as f:
-            for url in sorted(current_urls):
+            for url in sorted(todas):
                 f.write(url.strip() + "\n")
 
     except Exception as e:
