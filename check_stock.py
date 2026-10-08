@@ -20,6 +20,7 @@ LIDER_URL8 = "https://www.lider.cl/ip/juguetes-por-edad/pokemon-tcg-ascended-her
 LIDER_URL9 = "https://super.lider.cl/ip/jugueteria/00019621414143"
 LIDER_URL10 = "https://www.lider.cl/ip/juegos-de-mesa/disfruta-de-la-coleccion-premium-de-prismatic-evolution-ingles/00019621411280"
 LIDER_URL11 = "https://www.lider.cl/ip/juegos-de-mesa/caja-de-sobres-con-figura-disfruta-de-la-coleccion-premium-de-prismatic-evolution-ingles/00019621411276"
+LIDER_URL12 = "https://super.lider.cl/ip/jugueteria/00019621415880"
 
 SEARCH_FALABELLA_ASCENDED = "https://www.falabella.com/falabella-cl/search?Ntt=Ascended+heroes"
 SEARCH_FALABELLA_30TH = "https://www.falabella.com/falabella-cl/search?Ntt=pokemon+30+aniversario"
@@ -198,6 +199,7 @@ check_lider("Poster Mega Gardevoir Ingles v2", LIDER_URL8)
 check_lider("Lider Super Poster", LIDER_URL9)
 check_lider("Prismatic Evolution Premium Ingles", LIDER_URL10)
 check_lider("Prismatic Evolution Sobres Figura Ingles", LIDER_URL11)
+check_lider("Lider Super 30th", LIDER_URL12)
 check_search_falabella(SEARCH_FALABELLA_ASCENDED, URLS_FILE, "ascended", "Ascended Heroes Falabella")
 check_search_falabella(SEARCH_FALABELLA_30TH, URLS_30TH_FILE, "pokemon", "30 Aniversario Falabella")
 check_search_falabella(SEARCH_FALABELLA_30TH_EN, URLS_30TH_FILE, "pokemon", "30 Anniversary Falabella")
