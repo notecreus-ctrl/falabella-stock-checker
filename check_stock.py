@@ -26,6 +26,7 @@ LIDER_URL12 = "https://super.lider.cl/ip/jugueteria/00019621415880"
 SEARCH_FALABELLA_ASCENDED = "https://www.falabella.com/falabella-cl/search?Ntt=Ascended+heroes"
 SEARCH_FALABELLA_30TH = "https://www.falabella.com/falabella-cl/search?Ntt=pokemon+30+aniversario"
 SEARCH_FALABELLA_30TH_EN = "https://www.falabella.com/falabella-cl/search?Ntt=pokemon+30+anniversary"
+SEARCH_FALABELLA_30TH_MARCA = "https://www.falabella.com/falabella-cl/search?Ntt=30+pokemon&f.derived.variant.sellerId_popularBrand=FALABELLA+Y+MEJORES+MARCAS"
 
 URLS_FILE = "last_urls.txt"
 URLS_30TH_FILE = "last_urls_30th.txt"
@@ -241,3 +242,4 @@ check_lider("Lider Super 30th", LIDER_URL12)
 check_search_falabella(SEARCH_FALABELLA_ASCENDED, URLS_FILE, "ascended", "Ascended Heroes Falabella")
 check_search_falabella(SEARCH_FALABELLA_30TH, URLS_30TH_FILE, "pokemon", "30 Aniversario Falabella")
 check_search_falabella(SEARCH_FALABELLA_30TH_EN, URLS_30TH_FILE, "pokemon", "30 Anniversary Falabella")
+check_search_falabella(SEARCH_FALABELLA_30TH_MARCA, URLS_30TH_FILE, "pokemon", "30 Aniversario Falabella Marca")
