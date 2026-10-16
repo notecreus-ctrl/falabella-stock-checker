@@ -29,6 +29,7 @@ SEARCH_FALABELLA_30TH_EN = "https://www.falabella.com/falabella-cl/search?Ntt=po
 URLS_FILE = "last_urls.txt"
 URLS_30TH_FILE = "last_urls_30th.txt"
 SOBRES_STATE_FILE = "sobres_state.txt"
+ETB_LIDER_PRECIO_FILE = "etb_lider_precio.txt"
 TIMEOUT = 15
 
 def check_falabella(nombre, url):
@@ -65,6 +66,41 @@ def check_lider(nombre, url):
             print(nombre + " no determinado")
     except Exception as e:
         error = nombre + " error: " + str(e)
+        print(error)
+        notify("ERROR - " + error)
+
+def check_lider_etb_ascended(url):
+    try:
+        headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
+        r = requests.get(url, headers=headers, timeout=TIMEOUT)
+
+        last_precio = 242990
+        if os.path.exists(ETB_LIDER_PRECIO_FILE):
+            with open(ETB_LIDER_PRECIO_FILE, "r") as f:
+                content = f.read().strip()
+                if content:
+                    last_precio = int(content)
+
+        if "schema.org/InStock" in r.text:
+            precio = None
+            match = re.search(r'"price"\s*:\s*"?([\d]+)"?', r.text)
+            if match:
+                precio = int(match.group(1))
+                print("Lider ETB Ascended precio: $" + str(precio))
+
+            if precio is not None and precio < last_precio:
+                notify("Lider: ETB Ascended bajo de precio $" + str(last_precio) + " -> $" + str(precio) + "! " + url)
+                with open(ETB_LIDER_PRECIO_FILE, "w") as f:
+                    f.write(str(precio))
+            else:
+                print("Lider ETB Ascended mismo precio o sin cambio")
+        elif "schema.org/OutOfStock" in r.text:
+            print("Lider ETB Ascended sin stock")
+        else:
+            print("Lider ETB Ascended no determinado")
+
+    except Exception as e:
+        error = "Lider ETB Ascended error: " + str(e)
         print(error)
         notify("ERROR - " + error)
 
@@ -188,7 +224,7 @@ def notify(msg):
 check_falabella("Falabella Booster Bundle", FALABELLA_URL)
 check_falabella("Falabella ETB Ingles", FALABELLA_ETB_URL)
 check_falabella("Falabella ETB 30 Aniversario", FALABELLA_ETB_30TH_URL)
-check_lider("ETB Ingles", LIDER_URL1)
+check_lider_etb_ascended(LIDER_URL1)
 check_lider_sobres(LIDER_URL2)
 check_lider("Prismatic ETB", LIDER_URL3)
 check_lider("Poster Gardevoir Ingles", LIDER_URL4)
