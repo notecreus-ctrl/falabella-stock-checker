@@ -243,4 +243,3 @@ check_search_falabella(SEARCH_FALABELLA_ASCENDED, URLS_FILE, "ascended", "Ascend
 check_search_falabella(SEARCH_FALABELLA_30TH, URLS_30TH_FILE, "pokemon", "30 Aniversario Falabella")
 check_search_falabella(SEARCH_FALABELLA_30TH_EN, URLS_30TH_FILE, "pokemon", "30 Anniversary Falabella")
 check_search_falabella(SEARCH_FALABELLA_30TH_MARCA, URLS_30TH_FILE, "pokemon", "30 Aniversario Falabella Marca")
-notify("SIMULACRO: Falabella Booster 30 Aniversario disponible! " + FALABELLA_BOOSTER_30TH_URL)
