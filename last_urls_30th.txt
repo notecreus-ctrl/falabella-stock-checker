@@ -40,6 +40,7 @@ falabella-cl/product/80830433/caja-30-aniversario-poster-c-pokemon
 falabella-cl/product/80830434/caja-30-aniversario-ex-box-i-pokemon
 falabella-cl/product/80830436/caja-30-aniversario-poster-c-pokemon
 falabella-cl/product/80830437/caja-30-aniversario-ex-box-s-pokemon
+falabella-cl/product/80830438/caja-30-aniversario-binder-c-pokemon
 falabella-cl/product/80830439/caja-30-aniversario-booster-pokemon
 falabella-cl/product/80830444/caja-30-aniversario-tech-sti-pokemon
 falabella-cl/product/80830445/caja-30-aniversario-sticker-pokemon
