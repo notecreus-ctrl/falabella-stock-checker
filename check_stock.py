@@ -32,6 +32,7 @@ URLS_FILE = "last_urls.txt"
 URLS_30TH_FILE = "last_urls_30th.txt"
 SOBRES_STATE_FILE = "sobres_state.txt"
 ETB_LIDER_PRECIO_FILE = "etb_lider_precio.txt"
+ETB_LIDER_PRECIO_REFERENCIA = 242990
 TIMEOUT = 15
 
 def check_falabella(nombre, url):
@@ -76,7 +77,7 @@ def check_lider_etb_ascended(url):
         headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
         r = requests.get(url, headers=headers, timeout=TIMEOUT)
 
-        last_precio = 242990
+        last_precio = ETB_LIDER_PRECIO_REFERENCIA
         if os.path.exists(ETB_LIDER_PRECIO_FILE):
             with open(ETB_LIDER_PRECIO_FILE, "r") as f:
                 content = f.read().strip()
@@ -88,14 +89,14 @@ def check_lider_etb_ascended(url):
             match = re.search(r'"price"\s*:\s*"?([\d]+)"?', r.text)
             if match:
                 precio = int(match.group(1))
-                print("Lider ETB Ascended precio: $" + str(precio))
 
-            if precio is not None and precio < last_precio:
-                notify("Lider: ETB Ascended bajo de precio $" + str(last_precio) + " -> $" + str(precio) + "! " + url)
+            print("Lider ETB Ascended precio: " + str(precio) + " (anterior: " + str(last_precio) + ")")
+
+            if precio is not None:
+                if precio < last_precio:
+                    notify("Lider: ETB Ascended bajo de precio $" + str(last_precio) + " -> $" + str(precio) + "! " + url)
                 with open(ETB_LIDER_PRECIO_FILE, "w") as f:
                     f.write(str(precio))
-            else:
-                print("Lider ETB Ascended mismo precio o sin cambio")
         elif "schema.org/OutOfStock" in r.text:
             print("Lider ETB Ascended sin stock")
         else:
