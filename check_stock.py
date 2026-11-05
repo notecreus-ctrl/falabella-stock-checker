@@ -31,9 +31,12 @@ SEARCH_FALABELLA_30TH_MARCA = "https://www.falabella.com/falabella-cl/search?Ntt
 URLS_FILE = "last_urls.txt"
 URLS_30TH_FILE = "last_urls_30th.txt"
 SOBRES_STATE_FILE = "sobres_state.txt"
-ETB_LIDER_PRECIO_FILE = "etb_lider_precio.txt"
+ETB_LIDER_PRECIO_FILE = "last_count.txt"
 ETB_LIDER_PRECIO_REFERENCIA = 242990
 TIMEOUT = 15
+
+def limpiar_url(u):
+    return u.split("\\u0026")[0].split("&")[0].split("?")[0].strip()
 
 def check_falabella(nombre, url):
     try:
@@ -72,17 +75,22 @@ def check_lider(nombre, url):
         print(error)
         notify("ERROR - " + error)
 
+def leer_precio_etb():
+    try:
+        with open(ETB_LIDER_PRECIO_FILE, "r") as f:
+            c = f.read().strip()
+        if c.startswith("etb:"):
+            return int(c[4:])
+    except Exception:
+        pass
+    return ETB_LIDER_PRECIO_REFERENCIA
+
 def check_lider_etb_ascended(url):
     try:
         headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
         r = requests.get(url, headers=headers, timeout=TIMEOUT)
 
-        last_precio = ETB_LIDER_PRECIO_REFERENCIA
-        if os.path.exists(ETB_LIDER_PRECIO_FILE):
-            with open(ETB_LIDER_PRECIO_FILE, "r") as f:
-                content = f.read().strip()
-                if content:
-                    last_precio = int(content)
+        last_precio = leer_precio_etb()
 
         if "schema.org/InStock" in r.text:
             precio = None
@@ -96,7 +104,7 @@ def check_lider_etb_ascended(url):
                 if precio < last_precio:
                     notify("Lider: ETB Ascended bajo de precio $" + str(last_precio) + " -> $" + str(precio) + "! " + url)
                 with open(ETB_LIDER_PRECIO_FILE, "w") as f:
-                    f.write(str(precio))
+                    f.write("etb:" + str(precio))
         elif "schema.org/OutOfStock" in r.text:
             print("Lider ETB Ascended sin stock")
         else:
@@ -180,14 +188,11 @@ def check_search_falabella(search_url, urls_file, keyword, nombre):
         }
         r = requests.get(search_url, headers=headers, timeout=30)
         matches = re.findall(r'falabella-cl/product/[^"&\s<>\\]+', r.text)
-        seen = set()
         current_urls = set()
         for m in matches:
-            m = m.split("\\u0026")[0].split("&")[0].strip()
-            if m not in seen:
-                seen.add(m)
-                if keyword in m.lower() and "espanol" not in m.lower() and "español" not in m.lower():
-                    current_urls.add(m)
+            m = limpiar_url(m)
+            if keyword in m.lower() and "espanol" not in m.lower() and "español" not in m.lower():
+                current_urls.add(m)
 
         print(nombre + " URLs: " + str(len(current_urls)))
 
@@ -195,23 +200,24 @@ def check_search_falabella(search_url, urls_file, keyword, nombre):
         if os.path.exists(urls_file):
             with open(urls_file, "r") as f:
                 for line in f.readlines():
-                    line = line.strip()
+                    line = limpiar_url(line)
                     if line:
                         last_urls.add(line)
 
         nuevas = current_urls - last_urls
         if nuevas:
-            for url in nuevas:
-                precio = get_falabella_precio("https://www." + url)
+            for u in nuevas:
+                link = "https://www.falabella.com/" + u
+                precio = get_falabella_precio(link)
                 if precio:
-                    notify("ALERTA " + nombre + ": nuevo producto a $" + str(precio) + "! https://www." + url)
+                    notify("ALERTA " + nombre + ": nuevo producto a $" + str(precio) + "! " + link)
                 else:
-                    notify("ALERTA " + nombre + ": nuevo producto! https://www." + url)
+                    notify("ALERTA " + nombre + ": nuevo producto! " + link)
 
         todas = last_urls | current_urls
         with open(urls_file, "w") as f:
-            for url in sorted(todas):
-                f.write(url.strip() + "\n")
+            for u in sorted(todas):
+                f.write(u + "\n")
 
     except Exception as e:
         error = nombre + " busqueda error: " + str(e)
