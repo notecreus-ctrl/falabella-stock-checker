@@ -1,3 +1,4 @@
+falabella-cl/product/153299349/ark-survival-ascended-playstation-5
 falabella-cl/product/158469233/juego-de-cartas-pokemon-mega-evolution-ascended-heroes-2
 falabella-cl/product/158469266/juego-de-cartas-pokemon-ascended-heroes-2-paquetes
 falabella-cl/product/158469349/caja-pokemon-mega-evolution-ascended-heroes-mega-feraligatr
@@ -5,3 +6,4 @@ falabella-cl/product/158469361/juego-de-cartas-pokemon-mega-evolution-ascended-h
 falabella-cl/product/158469411/juego-de-cartas-pokemon-mega-evolution-ascended-heroes-2
 falabella-cl/product/158469493/juego-de-cartas-pokemon-mega-evolution-ascended-heroes-mini
 falabella-cl/product/158469528/coleccion-pokemon-ascended-heroes-con-poster
+falabella-cl/product/158514231/ark-survival-ascended-playstation-5
