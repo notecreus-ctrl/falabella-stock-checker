@@ -115,7 +115,7 @@ def check_lider_etb_ascended(url):
         print(error)
         notify("ERROR - " + error)
 
-def check_lider_sobres(url):
+def (url):
     try:
         headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.lider.cl/"}
         r = requests.get(url, headers=headers, timeout=TIMEOUT)
