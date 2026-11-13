@@ -130,21 +130,17 @@ def check_lider_sobres(url):
             match = re.search(r'"price"\s*:\s*"?([\d]+)"?', r.text)
             if match:
                 precio = int(match.group(1))
-                print("Lider Sobres precio: " + str(precio))
+            print("Lider Sobres precio: " + str(precio))
 
-            if precio is not None and precio <= 50000:
-                current_state = "instock_normal"
-                if last_state != "instock_normal":
-                    notify("Lider: Sobres disponible a $" + str(precio) + "! " + url)
-            elif precio is not None and precio > 50000:
-                current_state = "instock_caro"
-                if last_state != "instock_caro":
+            current_state = "instock"
+            # Avisa SOLO al pasar de agotado/desconocido a disponible
+            if not last_state.startswith("instock"):
+                if precio is not None and precio > 50000:
                     notify("Lider: Sobres disponible pero precio elevado $" + str(precio) + " (envio internacional)")
-            else:
-                current_state = "instock_sin_precio"
-                if last_state != "instock_sin_precio":
+                elif precio is not None:
+                    notify("Lider: Sobres disponible a $" + str(precio) + "! " + url)
+                else:
                     notify("Lider: Sobres disponible (verificar precio)! " + url)
-
             print("Lider Sobres estado: " + current_state)
 
         elif "schema.org/OutOfStock" in r.text:
